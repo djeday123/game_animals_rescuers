@@ -1,0 +1,25 @@
+{
+  "name": "game_animals_rescuers",
+  "version": "1.0.0",
+  "description": "Blockchain game - Animal Rescuers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djeday123/game_animals_rescuers.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/djeday123/game_animals_rescuers/issues"
+  },
+  "homepage": "https://github.com/djeday123/game_animals_rescuers#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "hardhat": "^2.26.3"
+  }
+}
