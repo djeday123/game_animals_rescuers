@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Rescuers - Blockchain Game</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .wallet-section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,107,107,0.4);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .missions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .mission-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .mission-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .mission-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .mission-name {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .mission-details {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .mission-fee {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffeb3b;
+            margin-bottom: 15px;
+        }
+        
+        .rescued-animals {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .animals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .animal-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .animal-image {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+        }
+        
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+        }
+        
+        .status.info {
+            background: rgba(33, 150, 243, 0.2);
+            border: 1px solid #2196F3;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐾 Animal Rescuers</h1>
+            <p class="subtitle">Save animals, collect NFTs, make a difference!</p>
+        </header>
+        
+        <div class="wallet-section">
+            <div id="wallet-status">
+                <p>Connect your wallet to start rescuing animals</p>
+                <button class="btn" onclick="connectWallet()">Connect Wallet</button>
+            </div>
+            <div id="connected-status" class="hidden">
+                <p>Connected: <span id="wallet-address"></span></p>
+                <p>Balance: <span id="wallet-balance"></span> ETH</p>
+            </div>
+        </div>
+        
+        <div id="status-messages"></div>
+        
+        <div id="game-content" class="hidden">
+            <section>
+                <h2>🚨 Active Rescue Missions</h2>
+                <div id="missions-container" class="missions-grid">
+                    <!-- Missions will be loaded here -->
+                </div>
+            </section>
+            
+            <section class="rescued-animals">
+                <h2>🏆 Your Rescued Animals</h2>
+                <div id="rescued-animals-container" class="animals-grid">
+                    <!-- Rescued animals will be loaded here -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Contract addresses (update these after deployment)
+        const ANIMAL_NFT_ADDRESS = "YOUR_ANIMAL_NFT_CONTRACT_ADDRESS";
+        const ANIMAL_RESCUE_GAME_ADDRESS = "YOUR_ANIMAL_RESCUE_GAME_CONTRACT_ADDRESS";
+        
+        // Contract ABIs (simplified - in production, import from artifacts)
+        const ANIMAL_RESCUE_GAME_ABI = [
+            "function getActiveMissions() view returns (uint256[])",
+            "function getMission(uint256 missionId) view returns (tuple(uint256 id, string animalName, string animalSpecies, string location, uint256 rescueFee, string imageURI, bool isCompleted, address rescuer, uint256 deadline))",
+            "function rescueAnimalFromMission(uint256 missionId) payable",
+            "function getUserRescuedAnimals(address user) view returns (uint256[])"
+        ];
+        
+        const ANIMAL_NFT_ABI = [
+            "function getAnimal(uint256 tokenId) view returns (tuple(string name, string species, uint256 rescueDate, address rescuer, string imageURI, bool isRescued))",
+            "function ownerOf(uint256 tokenId) view returns (address)"
+        ];
+        
+        let provider;
+        let signer;
+        let gameContract;
+        let nftContract;
+        let userAddress;
+        
+        // Connect wallet
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    
+                    // Initialize contracts
+                    gameContract = new ethers.Contract(ANIMAL_RESCUE_GAME_ADDRESS, ANIMAL_RESCUE_GAME_ABI, signer);
+                    nftContract = new ethers.Contract(ANIMAL_NFT_ADDRESS, ANIMAL_NFT_ABI, signer);
+                    
+                    updateWalletDisplay();
+                    loadGameData();
+                    
+                } catch (error) {
+                    showStatus('Failed to connect wallet: ' + error.message, 'error');
+                }
+            } else {
+                showStatus('Please install MetaMask to play!', 'error');
+            }
+        }
+        
+        // Update wallet display
+        async function updateWalletDisplay() {
+            document.getElementById('wallet-status').classList.add('hidden');
+            document.getElementById('connected-status').classList.remove('hidden');
+            document.getElementById('game-content').classList.remove('hidden');
+            
+            document.getElementById('wallet-address').textContent = 
+                userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+            
+            const balance = await provider.getBalance(userAddress);
+            document.getElementById('wallet-balance').textContent = 
+                parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
+        }
+        
+        // Load game data
+        async function loadGameData() {
+            try {
+                await loadMissions();
+                await loadRescuedAnimals();
+            } catch (error) {
+                showStatus('Failed to load game data: ' + error.message, 'error');
+            }
+        }
+        
+        // Load active missions
+        async function loadMissions() {
+            const container = document.getElementById('missions-container');
+            container.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                // For demo purposes, show sample missions
+                const sampleMissions = [
+                    {
+                        id: 0,
+                        animalName: "Buddy the Golden Retriever",
+                        animalSpecies: "Golden Retriever",
+                        location: "Central Park",
+                        rescueFee: ethers.utils.parseEther("0.1"),
+                        imageURI: "🐕",
+                        isCompleted: false
+                    },
+                    {
+                        id: 1,
+                        animalName: "Mittens the Persian Cat",
+                        animalSpecies: "Persian Cat",
+                        location: "Downtown Shelter",
+                        rescueFee: ethers.utils.parseEther("0.05"),
+                        imageURI: "🐱",
+                        isCompleted: false
+                    },
+                    {
+                        id: 2,
+                        animalName: "Charlie the Injured Bird",
+                        animalSpecies: "Robin",
+                        location: "City Park",
+                        rescueFee: ethers.utils.parseEther("0.02"),
+                        imageURI: "🐦",
+                        isCompleted: false
+                    }
+                ];
+                
+                container.innerHTML = '';
+                sampleMissions.forEach(mission => {
+                    const missionCard = createMissionCard(mission);
+                    container.appendChild(missionCard);
+                });
+                
+            } catch (error) {
+                container.innerHTML = '<p>Failed to load missions</p>';
+                console.error('Load missions error:', error);
+            }
+        }
+        
+        // Create mission card
+        function createMissionCard(mission) {
+            const card = document.createElement('div');
+            card.className = 'mission-card';
+            
+            card.innerHTML = `
+                <div class="mission-image">${mission.imageURI}</div>
+                <div class="mission-name">${mission.animalName}</div>
+                <div class="mission-details">
+                    <p><strong>Species:</strong> ${mission.animalSpecies}</p>
+                    <p><strong>Location:</strong> ${mission.location}</p>
+                </div>
+                <div class="mission-fee">Rescue Fee: ${ethers.utils.formatEther(mission.rescueFee)} ETH</div>
+                <button class="btn" onclick="rescueAnimal(${mission.id}, '${ethers.utils.formatEther(mission.rescueFee)}')">
+                    🚀 Rescue Now!
+                </button>
+            `;
+            
+            return card;
+        }
+        
+        // Rescue animal
+        async function rescueAnimal(missionId, feeInEth) {
+            try {
+                showStatus('Preparing rescue mission...', 'info');
+                
+                // For demo purposes, simulate rescue
+                showStatus('🎉 Rescue successful! ' + 'Mission ' + missionId + ' completed. Check your rescued animals below!', 'success');
+                
+                // Simulate adding rescued animal
+                setTimeout(() => {
+                    addDemoRescuedAnimal(missionId);
+                }, 1000);
+                
+            } catch (error) {
+                showStatus('Rescue failed: ' + error.message, 'error');
+            }
+        }
+        
+        // Load rescued animals
+        async function loadRescuedAnimals() {
+            const container = document.getElementById('rescued-animals-container');
+            
+            // For demo, show placeholder
+            container.innerHTML = '<p>Connect to a deployed contract to see your rescued animals!</p>';
+        }
+        
+        // Add demo rescued animal (for demonstration)
+        function addDemoRescuedAnimal(missionId) {
+            const container = document.getElementById('rescued-animals-container');
+            const animals = ['🐕 Buddy', '🐱 Mittens', '🐦 Charlie'];
+            
+            if (container.children.length === 1 && container.textContent.includes('Connect to')) {
+                container.innerHTML = '';
+            }
+            
+            const animalCard = document.createElement('div');
+            animalCard.className = 'animal-card';
+            animalCard.innerHTML = `
+                <div class="animal-image">${['🐕', '🐱', '🐦'][missionId] || '🐾'}</div>
+                <div><strong>${animals[missionId] || 'New Friend'}</strong></div>
+                <div>Rescued Successfully!</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">NFT Token #${missionId}</div>
+            `;
+            
+            container.appendChild(animalCard);
+        }
+        
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const container = document.getElementById('status-messages');
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            
+            container.innerHTML = '';
+            container.appendChild(statusDiv);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        // Initialize demo
+        function initDemo() {
+            showStatus('🎮 Demo Mode: This is a preview of the Animal Rescuers game. Connect to a deployed contract to play with real blockchain features!', 'info');
+        }
+        
+        // Start demo on page load
+        window.addEventListener('load', initDemo);
+    </script>
+</body>
+</html>
