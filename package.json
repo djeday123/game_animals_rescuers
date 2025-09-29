@@ -1,0 +1,24 @@
+{
+  "name": "game_animals_rescuers",
+  "version": "1.0.0",
+  "description": "Blockchain game - Animal Rescuers",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js",
+    "demo": "hardhat run scripts/play-game.js",
+    "node": "hardhat node"
+  },
+  "keywords": ["blockchain", "game", "nft", "ethereum", "animals", "rescue"],
+  "author": "djeday123",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.1.0",
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "chai": "^4.5.0",
+    "ethers": "^6.15.0",
+    "hardhat": "^2.26.3"
+  }
+}
