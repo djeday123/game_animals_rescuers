@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 Animal Rescuers - Blockchain Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #718096;
+        }
+
+        .game-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #4a5568;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .game-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .control-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .control-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .animals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .animal-card {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .animal-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .animal-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .animal-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        .animal-details {
+            font-size: 0.9rem;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        .rarity-common { border-left: 4px solid #68d391; }
+        .rarity-uncommon { border-left: 4px solid #4fd1c7; }
+        .rarity-rare { border-left: 4px solid #63b3ed; }
+        .rarity-epic { border-left: 4px solid #a78bfa; }
+        .rarity-legendary { border-left: 4px solid #f6ad55; }
+
+        .status-message {
+            background: #e6fffa;
+            border: 1px solid #38d9a9;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            border: 1px solid #f56565;
+            color: #742a2a;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        .feature-description {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .game-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐾 Animal Rescuers</h1>
+            <p>A blockchain game where you rescue animals and earn NFT rewards!</p>
+        </div>
+
+        <div class="game-section">
+            <h2 class="section-title">🎮 Game Demo Interface</h2>
+            <p style="margin-bottom: 20px; color: #718096; text-align: center;">
+                This is a demonstration interface for the Animal Rescuers blockchain game.<br>
+                Connect with MetaMask and deploy the contract to interact with the game!
+            </p>
+            
+            <div class="status-message" id="statusMessage">
+                Ready to play!
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRescues">0</div>
+                    <div class="stat-label">Total Rescues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalExperience">0</div>
+                    <div class="stat-label">Total XP</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="rewardBalance">0.000</div>
+                    <div class="stat-label">Reward Balance (ETH)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="ownedAnimals">0</div>
+                    <div class="stat-label">Owned Animals</div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <div class="control-card">
+                    <div class="control-title">🚀 Rescue Animal</div>
+                    <div class="input-group">
+                        <label class="input-label" for="animalName">Animal Name:</label>
+                        <input type="text" class="input-field" id="animalName" placeholder="Enter a cute name..." maxlength="20">
+                    </div>
+                    <button class="btn" onclick="rescueAnimal()">
+                        Rescue Animal (0.001 ETH)
+                    </button>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-title">❤️ Care for Animals</div>
+                    <div class="input-group">
+                        <label class="input-label" for="tokenId">Animal Token ID:</label>
+                        <input type="number" class="input-field" id="tokenId" placeholder="Enter token ID..." min="0">
+                    </div>
+                    <button class="btn" onclick="careForAnimal()">
+                        Care for Animal
+                    </button>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-title">💰 Manage Rewards</div>
+                    <p style="margin-bottom: 15px; color: #718096;">Withdraw your earned rewards</p>
+                    <button class="btn" onclick="withdrawRewards()">
+                        Withdraw Rewards
+                    </button>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-title">🔗 Connect Wallet</div>
+                    <p style="margin-bottom: 15px; color: #718096;">Connect your MetaMask wallet</p>
+                    <button class="btn" onclick="connectWallet()">
+                        Connect MetaMask
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-section">
+            <h2 class="section-title">🐾 Your Rescued Animals</h2>
+            <div class="animals-grid" id="animalsGrid">
+                <div class="animal-card" style="text-align: center; color: #718096;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🔍</div>
+                    <p>No animals rescued yet!</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Start by rescuing your first animal above.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-section">
+            <h2 class="section-title">✨ Game Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-title">🎲 Random Animal Generation</div>
+                    <div class="feature-description">
+                        Rescue random animals with different types (Cat, Dog, Bird, Rabbit, Horse) and rarity levels from Common to Legendary!
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-title">🏆 Experience System</div>
+                    <div class="feature-description">
+                        Gain experience points by rescuing and caring for animals. Rarer animals give more XP!
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-title">💎 NFT Collection</div>
+                    <div class="feature-description">
+                        Each rescued animal is a unique ERC-721 NFT that you own and can trade on marketplaces.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-title">💰 Earn Rewards</div>
+                    <div class="feature-description">
+                        Care for your animals to earn ETH rewards. The more you care, the more you earn!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-section">
+            <h2 class="section-title">📚 How to Play</h2>
+            <div style="color: #718096; line-height: 1.8;">
+                <p><strong>1. Connect Wallet:</strong> Connect your MetaMask wallet to interact with the blockchain.</p>
+                <p><strong>2. Rescue Animals:</strong> Pay 0.001 ETH to rescue a random animal and mint an NFT.</p>
+                <p><strong>3. Care for Animals:</strong> Regularly care for your animals to gain experience and earn rewards.</p>
+                <p><strong>4. Collect & Trade:</strong> Build your collection of rare animals and trade them with other players.</p>
+                <p><strong>5. Earn Rewards:</strong> Withdraw your accumulated ETH rewards from caring activities.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo functionality - would connect to actual contract in production
+        let walletConnected = false;
+        let playerStats = {
+            totalRescues: 0,
+            totalExperience: 0,
+            rewardBalance: 0,
+            ownedAnimals: []
+        };
+
+        function showMessage(message, isError = false) {
+            const messageEl = document.getElementById('statusMessage');
+            messageEl.textContent = message;
+            messageEl.className = isError ? 'status-message error-message' : 'status-message';
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+
+        function updateStats() {
+            document.getElementById('totalRescues').textContent = playerStats.totalRescues;
+            document.getElementById('totalExperience').textContent = playerStats.totalExperience;
+            document.getElementById('rewardBalance').textContent = playerStats.rewardBalance.toFixed(3);
+            document.getElementById('ownedAnimals').textContent = playerStats.ownedAnimals.length;
+        }
+
+        function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                walletConnected = true;
+                showMessage('Wallet connected successfully! (Demo mode)');
+            } else {
+                showMessage('Please install MetaMask to play!', true);
+            }
+        }
+
+        function rescueAnimal() {
+            const animalName = document.getElementById('animalName').value.trim();
+            if (!animalName) {
+                showMessage('Please enter an animal name!', true);
+                return;
+            }
+
+            if (!walletConnected) {
+                showMessage('Please connect your wallet first!', true);
+                return;
+            }
+
+            // Demo rescue logic
+            const animalTypes = ['🐱 Cat', '🐶 Dog', '🐦 Bird', '🐰 Rabbit', '🐴 Horse'];
+            const rarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+            const rarityColors = ['rarity-common', 'rarity-uncommon', 'rarity-rare', 'rarity-epic', 'rarity-legendary'];
+            
+            const randomType = animalTypes[Math.floor(Math.random() * animalTypes.length)];
+            const randomRarity = Math.random();
+            let rarity, rarityClass, xp;
+            
+            if (randomRarity < 0.5) {
+                rarity = rarities[0];
+                rarityClass = rarityColors[0];
+                xp = 10;
+            } else if (randomRarity < 0.75) {
+                rarity = rarities[1];
+                rarityClass = rarityColors[1];
+                xp = 25;
+            } else if (randomRarity < 0.9) {
+                rarity = rarities[2];
+                rarityClass = rarityColors[2];
+                xp = 50;
+            } else if (randomRarity < 0.98) {
+                rarity = rarities[3];
+                rarityClass = rarityColors[3];
+                xp = 100;
+            } else {
+                rarity = rarities[4];
+                rarityClass = rarityColors[4];
+                xp = 250;
+            }
+
+            const animal = {
+                id: playerStats.ownedAnimals.length,
+                name: animalName,
+                type: randomType,
+                rarity: rarity,
+                rarityClass: rarityClass,
+                experience: 0,
+                rescueDate: new Date().toLocaleDateString()
+            };
+
+            playerStats.ownedAnimals.push(animal);
+            playerStats.totalRescues++;
+            playerStats.totalExperience += xp;
+            
+            updateStats();
+            renderAnimals();
+            showMessage(`Successfully rescued ${animalName} (${rarity} ${randomType})! +${xp} XP`);
+            
+            document.getElementById('animalName').value = '';
+        }
+
+        function careForAnimal() {
+            const tokenId = parseInt(document.getElementById('tokenId').value);
+            
+            if (!walletConnected) {
+                showMessage('Please connect your wallet first!', true);
+                return;
+            }
+
+            if (isNaN(tokenId) || tokenId < 0 || tokenId >= playerStats.ownedAnimals.length) {
+                showMessage('Invalid animal token ID!', true);
+                return;
+            }
+
+            const animal = playerStats.ownedAnimals[tokenId];
+            animal.experience += 10;
+            playerStats.totalExperience += 10;
+            playerStats.rewardBalance += 0.00005; // 5% of 0.001 ETH
+            
+            updateStats();
+            renderAnimals();
+            showMessage(`Cared for ${animal.name}! +10 XP, +0.00005 ETH reward`);
+            
+            document.getElementById('tokenId').value = '';
+        }
+
+        function withdrawRewards() {
+            if (!walletConnected) {
+                showMessage('Please connect your wallet first!', true);
+                return;
+            }
+
+            if (playerStats.rewardBalance <= 0) {
+                showMessage('No rewards to withdraw!', true);
+                return;
+            }
+
+            const amount = playerStats.rewardBalance;
+            playerStats.rewardBalance = 0;
+            updateStats();
+            showMessage(`Withdrew ${amount.toFixed(5)} ETH rewards! (Demo)`);
+        }
+
+        function renderAnimals() {
+            const grid = document.getElementById('animalsGrid');
+            
+            if (playerStats.ownedAnimals.length === 0) {
+                grid.innerHTML = `
+                    <div class="animal-card" style="text-align: center; color: #718096;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🔍</div>
+                        <p>No animals rescued yet!</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Start by rescuing your first animal above.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = playerStats.ownedAnimals.map(animal => `
+                <div class="animal-card ${animal.rarityClass}">
+                    <div class="animal-emoji">${animal.type.split(' ')[0]}</div>
+                    <div class="animal-name">${animal.name}</div>
+                    <div class="animal-details">
+                        <strong>Type:</strong> ${animal.type}<br>
+                        <strong>Rarity:</strong> ${animal.rarity}<br>
+                        <strong>Experience:</strong> ${animal.experience} XP<br>
+                        <strong>Token ID:</strong> ${animal.id}<br>
+                        <strong>Rescued:</strong> ${animal.rescueDate}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize the demo
+        updateStats();
+        
+        // Show welcome message
+        setTimeout(() => {
+            showMessage('Welcome to Animal Rescuers! This is a demo interface.');
+        }, 1000);
+    </script>
+</body>
+</html>
