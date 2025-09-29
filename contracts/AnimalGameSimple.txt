@@ -4,12 +4,8 @@ pragma solidity ^0.8.19;
 import "./AnimalNFT.sol";
 import "./GameToken.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
-contract AnimalGame is Ownable {
-    using ECDSA for bytes32;
-    
+contract AnimalGameSimple is Ownable {
     AnimalNFT public animalNFT;
     GameToken public gameToken;
     
@@ -72,7 +68,7 @@ contract AnimalGame is Ownable {
             isActive: true
         });
     }
-
+    
     function playLevel(uint256 _levelId, uint256 _animalId) public {
         require(levels[_levelId].isActive, "Level not active");
         require(animalNFT.ownerOf(_animalId) == msg.sender, "Not your animal");
@@ -84,6 +80,7 @@ contract AnimalGame is Ownable {
         emit AnimalUsed(msg.sender, _animalId, _levelId);
     }
     
+    // Временно упрощенная версия для тестирования
     function submitScore(
         uint256 _levelId, 
         uint256 _animalId, 
@@ -94,28 +91,9 @@ contract AnimalGame is Ownable {
         require(animalNFT.ownerOf(_animalId) == msg.sender, "Not your animal");
         require(_nonce == playerNonce[msg.sender], "Invalid nonce");
         
-        // Create message hash
-        bytes32 messageHash = keccak256(abi.encodePacked(
-            msg.sender,
-            _levelId,
-            _animalId,
-            _score,
-            _nonce
-        ));
+        // Временно отключаем проверку подписи для тестирования
+        // require(signer == gameServer, "Invalid signature");
         
-        // Используем MessageHashUtils для добавления префикса
-        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
-        
-        // Recover signer from signature
-        address signer = ECDSA.recover(ethSignedMessageHash, _signature);
-        
-        require(signer == gameServer, "Invalid signature");
-        
-        // Process score...
-        _processScore(_levelId, _animalId, _score);
-    }
-    
-    function _processScore(uint256 _levelId, uint256 _animalId, uint256 _score) internal {
         Level memory level = levels[_levelId];
         AnimalNFT.Animal memory animal = animalNFT.getAnimal(_animalId);
         
@@ -142,43 +120,6 @@ contract AnimalGame is Ownable {
         if (finalScore > playerStats[msg.sender].highScore) {
             playerStats[msg.sender].highScore = finalScore;
         }
-    }
-    
-    // Helper function for testing - verify signature manually
-    function verifySignature(
-        address _player,
-        uint256 _levelId,
-        uint256 _animalId,
-        uint256 _score,
-        uint256 _nonce,
-        bytes memory _signature
-    ) public pure returns (address) {
-        bytes32 messageHash = keccak256(abi.encodePacked(
-            _player,
-            _levelId,
-            _animalId,
-            _score,
-            _nonce
-        ));
-        
-        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
-        return ECDSA.recover(ethSignedMessageHash, _signature);
-    }
-    
-    function getMessageHash(
-        address _player,
-        uint256 _levelId,
-        uint256 _animalId,
-        uint256 _score,
-        uint256 _nonce
-    ) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(
-            _player,
-            _levelId,
-            _animalId,
-            _score,
-            _nonce
-        ));
     }
     
     function getPlayerStats(address _player) public view returns (PlayerStats memory) {
